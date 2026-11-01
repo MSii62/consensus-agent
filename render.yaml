@@ -1,0 +1,33 @@
+# Render Blueprint: the backend web service as code (Dashboard -> New -> Blueprint).
+# Secrets are NOT in this file: `sync: false` makes Render ask for each value in the dashboard.
+services:
+  - type: web
+    name: financial-consensus-api
+    runtime: docker
+    rootDir: backend
+    dockerfilePath: ./Dockerfile
+    plan: free
+    healthCheckPath: /health
+    autoDeploy: true
+    envVars:
+      - key: APP_ENV
+        value: production
+      # 512 MB free instance: one research run at a time (see DECISIONS)
+      - key: MAX_CONCURRENT_RUNS
+        value: "1"
+      # Embed filings with Cohere's API: the free instance's ~0.1 CPU is far too slow for
+      # the local model (a 10-K took 30+ minutes). See DECISIONS.
+      - key: EMBEDDING_PROVIDER
+        value: cohere
+      - key: COHERE_API_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: DATABASE_URL          # Neon connection string (postgresql://...?sslmode=require)
+        sync: false
+      - key: FRONTEND_ORIGIN       # e.g. https://<your-app>.vercel.app (comma-separate several)
+        sync: false
+      - key: SEC_USER_AGENT        # "Your Name your@email" (required by SEC EDGAR)
+        sync: false
